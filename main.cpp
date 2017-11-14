@@ -1,252 +1,177 @@
-/*#include <windows.h>
+#include <iostream>
+#include <string>
+#include <conio.h>
+#include <stdlib.h>
+using namespace std;
 
-HPEN hpen;
-HBRUSH hbrush;
-
-void onCreate(HWND hwnd, WPARAM wp, LPARAM lp)
+/********   FUNKCJE   ***************************/
+void plansza();
+void pole(int x,int y);
+void czysc();
+void start();
+void move(int g);
+void rezultat(int win);
+void rank();
+int rozp();
+int spr();
+int gracze();
+/************************************************/
+int tab[3][3];
+int wyb, win, g, gstat=0, pkt_g1=0, pkt_g2=0, tmp;
+string player1, player2;
+float v=1.5;
+/************************************************/
+main()
 {
-	hpen = CreatePen(PS_SOLID, 3, RGB(255,0,0));
-	hbrush = CreateSolidBrush(RGB(0,255,0));
-	SetTimer(hwnd, 1, 100, NULL);
+      while(1)
+      {
+          win=0;
+          start();
+          cout<<"1. Nowa gra\n2. Wprowadz graczy\n0. Koniec\n\n";
+          rank();
+          cout<<"\n\nTwoj wybor: ";cin>>wyb;
+          switch(wyb){
+                     case 1:
+                          if(gstat!=0)
+                          {
+                                      start();
+                                      g=rozp();
+                                      while(1)
+                                      {
+                                              plansza();
+                                              move(g);
+                                              plansza();
+                                              win=spr();
+                                              if(win!=0)break;
+                                              g++;
+                                      }
+                          rezultat(win);
+                          getch();
+                          break;
+                          }
+                          else
+                          {
+                              cout<<"Najpierw wprowadz graczy";
+                              getch();
+                              break;
+                          }
+                     case 2:
+                          gstat=gracze();
+                          break;
+                     case 0: return 0;
+                     default :
+                             cout<<"Brak opcji...";
+                             getch();
+                     }
+      czysc();
+      }
 }
-
-void onDestroy(HWND hwnd, WPARAM wp, LPARAM lp)
+/**************   *****************************/
+int rozp()
 {
-	DeleteObject(hpen);
-	DeleteObject(hbrush);
-	KillTimer(hwnd, 1);
+    cout<<"Kto rozpoczyna?\n1. "<<player1<<"\n2. "<<player2<<"\n\nTwoj wybor:";
+    cin>>g;
+    return g;
 }
-
-void onTimer(HWND hwnd, WPARAM wp, LPARAM lp)
+//**************
+//**************
+int gracze()
 {
-	if(wp == 1)
-	{
-		InvalidateRect(hwnd, NULL, TRUE);
-		UpdateWindow(hwnd);
-	}
+    start();
+    cout<<"Podaj nazwe gracza X\n\n";
+    cin>>player1;
+    start();
+    cout<<"Podaj nazwe gracza O\n\n";
+    cin>>player2;
+    return 1;
 }
-
-void onPaint(HWND hwnd, WPARAM wp, LPARAM lp)
+//**************
+void rezultat(int win)
 {
-	static PAINTSTRUCT ps;
-	static RECT r;
-			
-	BeginPaint(hwnd, &ps);
-
-	SelectObject(ps.hdc, hpen);
-	SelectObject(ps.hdc, hbrush);
-
-	GetClientRect(hwnd, &r);
-	
-	int margin = 20;
-	int x0 = r.left + margin;
-	int y0 = r.top + margin;
-	int x1 = r.right - margin;
-	int y1 = r.bottom - margin;
-	Rectangle(ps.hdc, x0, y0, x1, y1);
-
-	int w = x1 - x0;
-	int h = y1 - y0;
-	int xo = w / 2 + margin;
-	int yo = h / 2 + margin;
-	MoveToEx(ps.hdc, x0, y0, NULL);
-	LineTo(ps.hdc, x1, y0);
-	MoveToEx(ps.hdc, x0, y0, NULL);
-	LineTo(ps.hdc, x0, y1);
-
-	for (double x=-3.14; x<3.14; x+=(6.28 / w));
-	{
-		SetPixel(ps.hdc, (x+3.14)/6.28 * w + x0, (-h / 2.0)*f(x) + (h / 2.0) + y0, RGB(0, 0, 0));
-	}
-
-	
-	
-
-	
-			
-	SelectObject(ps.hdc, GetStockObject(NULL_PEN));
-	SelectObject(ps.hdc, GetStockObject(NULL_BRUSH));
-
-			
-	EndPaint(hwnd, &ps);
+     if(win==1)
+     {
+               if(g%2)
+               {
+                      cout<<"\nWygrywa gracz: "<<player1;
+                      pkt_g1++;
+               }
+               else
+               {
+                      cout<<"\nWygrywa gracz: "<<player2;
+                      pkt_g2++;
+               }
+     }
+     else cout<<"Remis";
 }
-LRESULT CALLBACK wnd_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp) 
+//**************
+void move(int g)
 {
-	switch(message) 
-	{
-		case WM_TIMER:
-			onTimer(hwnd, wp, lp);
-			break;
-
-		case WM_PAINT:
-			onPaint(hwnd, wp, lp);
-			break;
-
-		case WM_DESTROY: 
-			onDestroy(hwnd, wp, lp);
-			PostQuitMessage(0); 
-			break;
-		
-		default: 
-			return DefWindowProc(hwnd, message, wp, lp);
-    }
-    return 0;
+     int m,x,y,bl;
+     do{
+     if(g%2)cout<<"\n"<<player1<<" wybierz pole: ";
+     else cout<<"\n"<<player2<<" wybierz pole: ";
+     cin>>m;
+     if(m>9||m<1)
+     {
+                 cout<<"\nBrak podanego pola na plaszy uzytkowniku...";
+                 getch();
+                 bl=0;
+                 plansza();
+     }
+     else
+     {
+     /*A*/if(m<4&&m>0){y=(m-1);x=2;bl=1;}
+     /*B*/if(m<7&&m>3){y=(m-4);x=1;bl=1;}
+     /*C*/if(m<10&&m>6){y=(m-7);x=0;bl=1;}
+     if(tab[x][y]!=0)
+     {
+                     cout<<"\nPole zajete uzytkowniku...";
+                     getch();
+                     bl=0;
+                     plansza();
+     }
+     }
+     }while(bl!=1);
+     if(g%2) tab[x][y]=1;
+     else tab[x][y]=2;
 }
-
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) 
+//**************
+void pole(int x,int y){
+     if(tab[x][y]==0)cout<<" ";
+     if(tab[x][y]==1)cout<<"X";
+     if(tab[x][y]==2)cout<<"O";}
+//**************
+int spr(){
+for(int c=0;c<3;c++){
+if(((tab[c][0]==1)&&(tab[c][1]==1)&&(tab[c][2]==1))||((tab[c][0]==2)&&(tab[c][1]==2)&&(tab[c][2]==2)))return 1;
+if(((tab[0][c]==1)&&(tab[1][c]==1)&&(tab[2][c]==1))||((tab[0][c]==2)&&(tab[1][c]==2)&&(tab[2][c]==2)))return 1;}
+if(((tab[0][0]==1)&&(tab[1][1]==1)&&(tab[2][2]==1))||((tab[0][0]==2)&&(tab[1][1]==2)&&(tab[2][2]==2)))return 1;
+else{
+if(((tab[0][2]==1)&&(tab[1][1]==1)&&(tab[2][0]==1))||((tab[0][2]==2)&&(tab[1][1]==2)&&(tab[2][0]==2)))return 1;
+tmp=9;for(int c=0;c<3;c++){for(int d=0;d<3;d++){if((tab[c][d]==1)||(tab[c][d]==2))tmp--;}}if(tmp==0)return 2;
+else return 0;}}
+//**************
+void plansza()
 {
-    WNDCLASSEX wc;
-
-    wc.cbSize = sizeof(WNDCLASSEX);
-    wc.cbClsExtra = 0;
-    wc.style = 0;
-    wc.lpfnWndProc = wnd_proc;
-    wc.cbWndExtra = 0;
-    wc.hInstance = hInstance;
-    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    //wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-    wc.lpszMenuName = NULL;
-    wc.lpszClassName = "NAZWA_KLASY";
-
-    RegisterClassEx(&wc);
-	
-	HWND window = CreateWindowEx(0, "NAZWA_KLASY", "Tytu³", 
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, 
-		NULL, NULL, hInstance, NULL);  
-	if(!window) return -1;
-	onCreate(window, 0, 0);
-
-	MSG msg;
-	while( GetMessage( &msg, 0, 0, 0 ) ) 
-	{
-		TranslateMessage( &msg );
-		DispatchMessage( &msg );
-	}
-	
-	return 1;
-}*/
-#include <windows.h>
-#include <cmath>
-
-HPEN hpen;
-HBRUSH hbrush;
-
-double minx = -14, maxx = +14, miny = -2, maxy = +2;
-
-
-void paint(HDC hdc, double ux, double uy, int w, int h)
-{
-	static PAINTSTRUCT ps;
-	static RECT r;
-
-	BeginPaint(hwnd, &ps);
-
-	SelectObject(ps.hdc, hpen);
-	SelectObject(ps.hdc, hbrush);
-
-	GetClientRect(hwnd, &r);
-
-	int margin = 20;
-	int x0 = r.left + margin;
-	int y0 = r.top + margin;
-	int x1 = r.right - margin;
-	int y1 = r.bottom - margin;
-	Rectangle(ps.hdc, x0, y0, x1, y1);
-
-	int w = x1 - x0;
-	int h = y1 - y0;
-	int xo = w / 2 + margin;
-	int yo = h / 2 + margin;
-	MoveToEx(ps.hdc, x0, y0, NULL);
-	LineTo(ps.hdc, x1, y0);
-	MoveToEx(ps.hdc, x0, y0, NULL);
-	LineTo(ps.hdc, x0, y1);
-
-	int sx = (ux - minx) * w / (maxx - minx);
-	int sy = (-uy - miny) * h / (maxy - miny);
-	SetPixel(hdc, sx, sy, RGB(0, 0, 0));
-	//LineTo(hdc, sx, sy);
+     start();
+     cout<<"\n\n";
+     for(int x=0;x<3;x++)
+     {
+             cout<<"\t";
+             for(int y=0;y<3;y++)
+             {
+                     //cout<<tab[x][y];
+                     pole(x,y);
+                     if(y<2)cout<<"|";
+             }
+             cout<<"\n";
+     if(x<2)cout<<"\t-----\n";
+     }
+     cout<<"\n\n";
+     rank();
 }
-
-void draw(HDC hdc, int w, int h)
-{
-	double step = (maxx - minx) / w;
-	for (double x = minx; x<maxx; x += step)
-	{
-		double y = sin(x);
-		paint(hdc, x, y, w, h);
-	}
-}
-
-LRESULT CALLBACK wnd_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
-{
-	switch (message)
-	{
-	case WM_SIZE:
-	case WM_SIZING:
-		InvalidateRect(hwnd, NULL, TRUE);
-		UpdateWindow(hwnd);
-		break;
-
-	case WM_PAINT:
-	{
-					 static RECT r;
-					 GetClientRect(hwnd, &r);
-
-					 static PAINTSTRUCT ps;
-					 BeginPaint(hwnd, &ps);
-					 draw(ps.hdc, r.right - r.left, r.bottom - r.top);
-					 EndPaint(hwnd, &ps);
-	}
-		break;
-
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-
-	default:
-		return DefWindowProc(hwnd, message, wp, lp);
-	}
-	return 0;
-}
-
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
-
-	WNDCLASSEX wc;
-
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.cbClsExtra = 0;
-	wc.style = 0;
-	wc.lpfnWndProc = wnd_proc;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION); //IDI_SHIELD
-	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = "KLASA_PA";
-
-	RegisterClassEx(&wc);
-
-	HWND window = CreateWindowEx(0, "KLASA_PA", "Programowanko aplikacyjne",
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE, 10, 10, 900, 300, NULL, NULL, hInstance, NULL);
-
-	if (!window) return -1;
-
-	MSG msg;
-	while (GetMessage(&msg, 0, 0, 2555)) 
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-
-	return 1;
-}
-
+//**************
+void rank(){cout<<"\nAktualny ranking:\n\n"<<player1<<"\t- "<<pkt_g1<<" pkt\n"<<player2<<"\t- "<<pkt_g2<<" pkt\n";}
+void start(){system("cls");cout<<"   KOLKO I KRZYZYK v"<<v<<"  \n-------------------------\n";}
+void czysc(){for(int a=0;a<3;a++)for(int b=0;b<3;b++)tab[a][b]=0;}
+//**************
