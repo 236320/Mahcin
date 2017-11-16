@@ -1,7 +1,0 @@
-# depslib dependency file v1.0
-1508961837 source:c:\users\marci\desktop\pa\kolko i krzy\main.cpp
-	<iostream>
-	<string>
-	<conio.h>
-	<stdlib.h>
-
